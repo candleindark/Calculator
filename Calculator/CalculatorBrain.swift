@@ -24,6 +24,13 @@ struct CalculatorBrain {
     
     private let formatter = NumberFormatter()
     
+    /// Type used to represent entries to the calculator
+    private enum Entry {
+        case constantOperand(Double)
+        case variableOperand(String)
+        case operation(Operation)
+    }
+    
     private enum Operation {
         case random(randomGenerator: (Void) -> Double)
         case constant(Double)
