@@ -28,8 +28,11 @@ struct CalculatorBrain {
     private enum Entry {
         case constantOperand(Double)
         case variableOperand(String)
-        case operation(Operation)
+        case operation(operation: Operation, symbol: String)
     }
+    
+    private var currentEntries = [Entry]()
+    private var pendingBinaryOperations = [PendingBinaryOperation]()
     
     private enum Operation {
         case random(randomGenerator: (Void) -> Double)
