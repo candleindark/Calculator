@@ -138,9 +138,14 @@ struct CalculatorBrain {
         }
     }
     
-    /// Set an operand by adding it to the accumulating entries of operations and operands
+    /// Set an operand
     mutating func setOperand(_ operand: Double) {
         entries.append(.constantOperand(operand))
+    }
+    
+    /// Set a variable operand
+    mutating func setOperand(variable named: String) {
+        entries.append(.variableOperand(named))
     }
     
     /// The result of the evaluation of the entries of operations and operands in the calculator brain
