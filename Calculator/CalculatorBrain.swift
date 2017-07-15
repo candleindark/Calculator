@@ -62,16 +62,17 @@ struct CalculatorBrain {
     
     /// Perform an operation by adding it to the accumulating entries of operations and operands
     mutating func performOperation(_ symbol: String) {
-        let (result, isPending, _) = evaluate()
         if let operation = operations[symbol] {
             switch operation {
             case .random, .constant:
                 entries.append(.operation(symbol))
             case .unaryOperation, .binaryOperation:
+                let (result, _, _) = evaluate()
                 if result != nil {
                     entries.append(.operation(symbol))
                 }
             case .equals:
+                let (result, isPending, _) = evaluate()
                 if result != nil && isPending == true {
                     entries.append(.operation(symbol))
                 }
