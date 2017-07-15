@@ -84,8 +84,8 @@ struct CalculatorBrain {
         var accumulator: (value: Double, representation: String)?
         var pendingBinaryOperations = [PendingBinaryOperation]()
         
-        for entry in entries {
-            switch entry {
+        for index in entries.indices {
+            switch entries[index] {
             case .constantOperand(let operand):
                 accumulator = (operand, formatter.string(from: NSNumber(value: operand))!)
             case .variableOperand(let operand):
@@ -105,8 +105,9 @@ struct CalculatorBrain {
                         accumulator = nil
                     case .equals:
                         let pendingBinaryOperation = pendingBinaryOperations.popLast()!
+                        let formatString = pendingBinaryOperations.isEmpty && index == entries.index(before: entries.endIndex) ? "%@ %@" : "(%@ %@)"
                         accumulator = (pendingBinaryOperation.perform(with: accumulator!.value),
-                                       pendingBinaryOperation.representation + " " + accumulator!.representation)
+                                       String(format: formatString, pendingBinaryOperation.representation, accumulator!.representation))
                     }
                 }
             }
