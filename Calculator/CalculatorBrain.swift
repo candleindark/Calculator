@@ -12,14 +12,8 @@ import Foundation
 
 struct CalculatorBrain {
     
-    private var accumulator: (value: Double, representation: String)?
-    
     var description: String {
-        let accumulatorRepresentation = (accumulator?.representation ?? "")
-        if resultIsPending {
-            return pendingBinaryOperation!.representation + " " + accumulatorRepresentation
-        }
-        return accumulatorRepresentation
+        return evaluate().description
     }
     
     private let formatter = NumberFormatter()
@@ -28,12 +22,13 @@ struct CalculatorBrain {
     private enum Entry {
         case constantOperand(Double)
         case variableOperand(String)
-        case operation(operation: Operation, symbol: String)
+        case operation(String)
     }
     
-    private var currentEntries = [Entry]()
-    private var pendingBinaryOperations = [PendingBinaryOperation]()
+    /// Array for storing the input of operations and operands to the calculator
+    private var entries = [Entry]()
     
+    /// Type representing different kinds of operations
     private enum Operation {
         case random(randomGenerator: (Void) -> Double)
         case constant(Double)
@@ -42,6 +37,7 @@ struct CalculatorBrain {
         case equals
     }
     
+    /// Dictionary of operations identified by symbols of type strings
     private var operations: Dictionary<String, Operation> = [
         "RAN" : .random(randomGenerator: { Double(arc4random()) / Double(UInt32.max) }),
         "π" : .constant(Double.pi),
@@ -64,43 +60,73 @@ struct CalculatorBrain {
         return {symbol + "(" + $0 + ")"}
     }
     
+    /// Perform an operation by adding it to the accumulating entries of operations and operands
     mutating func performOperation(_ symbol: String) {
+        let (result, isPending, _) = evaluate()
         if let operation = operations[symbol] {
             switch operation {
-            case .random(let randomGenerator):
-                let value = randomGenerator()
-                accumulator = (value, formatter.string(from: NSNumber(value: value))!)
-            case .constant(let value):
-                accumulator = (value, symbol)
-            case .unaryOperation(let function, let representationGenerator):
-                if let accumulator = accumulator {
-                    self.accumulator = (function(accumulator.value), representationGenerator(accumulator.representation))
-                }
-            case .binaryOperation(let function):
-                if let accumulator = accumulator {
-                    pendingBinaryOperation = PendingBinaryOperation(function: function, firstOperand: accumulator.value, representation: accumulator.representation + " " + symbol)
-                    self.accumulator = nil
+            case .random, .constant:
+                entries.append(.operation(symbol))
+            case .unaryOperation, .binaryOperation:
+                if result != nil {
+                    entries.append(.operation(symbol))
                 }
             case .equals:
-                performPendingBinaryOperation()
+                if result != nil && isPending == true {
+                    entries.append(.operation(symbol))
+                }
             }
         }
     }
     
-    private mutating func performPendingBinaryOperation() {
-        if pendingBinaryOperation != nil && accumulator != nil {
-            accumulator = (pendingBinaryOperation!.perform(with: accumulator!.value), pendingBinaryOperation!.representation + " " + accumulator!.representation)
-            pendingBinaryOperation = nil
+    /// Evalulate the entries of operations and operands in the calculator brain
+    func evaluate(using variables: Dictionary<String,Double>? = nil) -> (result: Double?, isPending: Bool, description: String) {
+        var accumulator: (value: Double, representation: String)?
+        var pendingBinaryOperations = [PendingBinaryOperation]()
+        
+        for entry in entries {
+            switch entry {
+            case .constantOperand(let operand):
+                accumulator = (operand, formatter.string(from: NSNumber(value: operand))!)
+            case .variableOperand(let operand):
+                accumulator = (variables?[operand] ?? 0.0, operand)
+            case .operation(let operationSymbol):
+                if let operation = operations[operationSymbol] {
+                    switch operation {
+                    case .random(let randomGenerator):
+                        let value = randomGenerator()
+                        accumulator = (value, "RAN()")
+                    case .constant(let value):
+                        accumulator = (value, operationSymbol)
+                    case .unaryOperation(let function, let representationGenerator):
+                        accumulator = (function(accumulator!.value), representationGenerator(accumulator!.representation))
+                    case .binaryOperation(let function):
+                        pendingBinaryOperations.append(PendingBinaryOperation(function: function, firstOperand: accumulator!.value, representation: accumulator!.representation + " " + operationSymbol))
+                        accumulator = nil
+                    case .equals:
+                        let pendingBinaryOperation = pendingBinaryOperations.popLast()!
+                        accumulator = (pendingBinaryOperation.perform(with: accumulator!.value),
+                                       pendingBinaryOperation.representation + " " + accumulator!.representation)
+                    }
+                }
+            }
         }
+        
+        var description = ""    // Description of the calculation so far
+        for pendingBinaryOperation in pendingBinaryOperations {
+            description += pendingBinaryOperation.representation + " "
+        }
+        description += accumulator?.representation ?? ""
+        
+        return (accumulator?.value, !pendingBinaryOperations.isEmpty, description)
     }
     
     /// Indicator of whether there is a pending binary operation
     var resultIsPending: Bool {
-        return pendingBinaryOperation != nil
+        return evaluate().isPending
     }
     
-    private var pendingBinaryOperation: PendingBinaryOperation?
-    
+    /// Structure for represending a pending binary operation
     private struct PendingBinaryOperation {
         let function: (Double, Double) -> Double
         let firstOperand: Double
@@ -111,18 +137,19 @@ struct CalculatorBrain {
         }
     }
     
+    /// Set an operand by adding it to the accumulating entries of operations and operands
     mutating func setOperand(_ operand: Double) {
-        accumulator = (operand, formatter.string(from: NSNumber(value: operand))!)
+        entries.append(.constantOperand(operand))
     }
     
+    /// The result of the evaluation of the entries of operations and operands in the calculator brain
     var result: Double? {
-        return accumulator?.value
+        return evaluate().result
     }
     
     /// Reset the CalculatorBrain Structure
     mutating func reset() {
-        accumulator = nil
-        pendingBinaryOperation = nil
+        entries = [Entry]()
     }
     
     init() {
