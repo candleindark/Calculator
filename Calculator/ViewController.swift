@@ -75,6 +75,22 @@ class ViewController: UIViewController {
         calculationSequenceDisplay.text = brain.description +  (brain.resultIsPending ? " …" : " =")
     }
     
+    @IBAction func setVariable(_ sender: UIButton) {
+        // Set variable value
+        let senderCurrentTitle = sender.currentTitle!
+        let variable = senderCurrentTitle.substring(from: senderCurrentTitle.index(after: senderCurrentTitle.startIndex))
+        if variableValues == nil {
+            variableValues = [variable: displayValue]
+        } else {
+            variableValues![variable] = displayValue
+        }
+        
+        // Display the value of the brain with this variable value
+        if let result = brain.evaluate(using: variableValues).result {
+            displayValue = result
+        }
+    }
+    
     @IBAction func reinitializeCalculator() {
         display.text = "0"
         calculationSequenceDisplay.text = " "
