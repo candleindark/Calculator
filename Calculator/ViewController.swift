@@ -59,6 +59,7 @@ class ViewController: UIViewController {
     }
     
     private var brain = CalculatorBrain()
+    private var variableValues: Dictionary<String, Double>?
     
     @IBAction func performOperation(_ sender: UIButton) {
         if userIsInTheMiddleOfTyping {
