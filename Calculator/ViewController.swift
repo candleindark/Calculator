@@ -69,10 +69,12 @@ class ViewController: UIViewController {
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
-        if let result = brain.evaluate(using: variableValues).result {
-            displayValue = result
+        
+        let (result, isPending, description) = brain.evaluate(using: variableValues)
+        if result != nil {
+            displayValue = result!
         }
-        calculationSequenceDisplay.text = brain.description +  (brain.resultIsPending ? " …" : " =")
+        calculationSequenceDisplay.text = description +  (isPending ? " …" : " =")
     }
     
     @IBAction func setVariable(_ sender: UIButton) {
