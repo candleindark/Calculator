@@ -195,7 +195,7 @@
                                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                                         </variation>
                                                         <connections>
-                                                            <action selector="performOperation:" destination="BYZ-38-t0r" eventType="touchUpInside" id="i9P-hR-VC3"/>
+                                                            <action selector="setVariableOperand:" destination="BYZ-38-t0r" eventType="touchUpInside" id="6lq-rx-TJW"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>

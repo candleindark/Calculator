@@ -46,8 +46,6 @@ struct CalculatorBrain {
         "cos" : .unaryOperation(operation: cos, representationGenerator: CalculatorBrain.prefixUnaryOperatorRepresentationGenerator(of: "cos")),
         "eˣ" : .unaryOperation(operation: exp, representationGenerator: CalculatorBrain.prefixUnaryOperatorRepresentationGenerator(of: "e^")),
         "ln" : .unaryOperation(operation: log, representationGenerator: CalculatorBrain.prefixUnaryOperatorRepresentationGenerator(of: "ln")),
-        "1/x" : .unaryOperation(operation: {1/$0}, representationGenerator: {"1 / (" + $0 + ")"}),
-        "%" : .unaryOperation(operation: {$0/100}, representationGenerator: {"(" + $0 + ") / 100"}),
         "±" : .unaryOperation(operation: {-$0}, representationGenerator: CalculatorBrain.prefixUnaryOperatorRepresentationGenerator(of: "-")),
         "×" : .binaryOperation({$0 * $1}),
         "÷" : .binaryOperation({$0 / $1}),
@@ -57,7 +55,9 @@ struct CalculatorBrain {
     ]
     
     private static func prefixUnaryOperatorRepresentationGenerator(of symbol: String) -> (String) -> String {
-        return {symbol + "(" + $0 + ")"}
+        return {
+            $0.hasPrefix("(") && $0.hasSuffix(")")
+                ? String(format: "%@%@", symbol, $0) : String(format: "%@(%@)", symbol, $0)}
     }
     
     /// Perform an operation by adding it to the accumulating entries of operations and operands

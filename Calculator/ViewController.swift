@@ -69,7 +69,7 @@ class ViewController: UIViewController {
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
-        if let result = brain.result {
+        if let result = brain.evaluate(using: variableValues).result {
             displayValue = result
         }
         calculationSequenceDisplay.text = brain.description +  (brain.resultIsPending ? " …" : " =")
@@ -89,6 +89,19 @@ class ViewController: UIViewController {
         if let result = brain.evaluate(using: variableValues).result {
             displayValue = result
         }
+        
+        userIsInTheMiddleOfTyping = false
+    }
+    
+    @IBAction func setVariableOperand(_ sender: UIButton) {
+        userIsInTheMiddleOfTyping = false
+        
+        brain.setOperand(variable: sender.currentTitle!)
+        
+        // Display the value of the brain
+        if let result = brain.evaluate(using: variableValues).result {
+            displayValue = result
+        }
     }
     
     @IBAction func reinitializeCalculator() {
@@ -96,6 +109,7 @@ class ViewController: UIViewController {
         calculationSequenceDisplay.text = " "
         userIsInTheMiddleOfTyping = false
         brain.reset()
+        variableValues = nil
         
     }
     
