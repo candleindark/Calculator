@@ -59,6 +59,9 @@
                                                 </variation>
                                             </label>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="100" id="Aqa-j6-MIK"/>
+                                        </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="PQQ-hh-BIh">
                                         <rect key="frame" x="0.0" y="164" width="343" height="467"/>
