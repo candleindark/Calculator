@@ -14,6 +14,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var calculationSequenceDisplay: UILabel!
     
+    @IBOutlet weak var mValueDisplay: UILabel!
+    
     var userIsInTheMiddleOfTyping = false
     
     @IBAction func touchDigit(_ sender: UIButton) {
