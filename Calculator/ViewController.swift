@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     
     var userIsInTheMiddleOfTyping = false
     
+    private let formatter = NumberFormatter()
+    
     @IBAction func touchDigit(_ sender: UIButton) {
         let digit = sender.currentTitle!
         if userIsInTheMiddleOfTyping {
@@ -52,16 +54,21 @@ class ViewController: UIViewController {
             return Double(display.text!)!
         }
         set {
-            // Specify a number formatter for holding maximum of 6 decimal digits
-            let formatter = NumberFormatter()
-            formatter.maximumFractionDigits = 6
-            
             display.text = formatter.string(from: NSNumber(value: newValue))!
         }
     }
     
     private var brain = CalculatorBrain()
-    private var variableValues: Dictionary<String, Double>?
+    private var variableValues: Dictionary<String, Double>? {
+        didSet {
+            // Set display
+            if let mValue = variableValues?["M"] {
+                mValueDisplay.text = "M = " + formatter.string(from: NSNumber(value: mValue))!
+            } else {
+                mValueDisplay.text = " "
+            }
+        }
+    }
     
     @IBAction func performOperation(_ sender: UIButton) {
         if userIsInTheMiddleOfTyping {
@@ -117,4 +124,10 @@ class ViewController: UIViewController {
         
     }
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        // Specify a number formatter for holding maximum of 6 decimal digits
+        formatter.maximumFractionDigits = 6
+    }
 }
