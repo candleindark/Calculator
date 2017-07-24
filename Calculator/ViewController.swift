@@ -46,7 +46,18 @@ class ViewController: UIViewController {
             }
             
             display.text = displayText
+        } else {
+            brain.undo()
+            updateValueAndCalculationSequenceDisplays()
         }
+    }
+    
+    private func updateValueAndCalculationSequenceDisplays() {
+        let (result, isPending, description) = brain.evaluate(using: variableValues)
+        if result != nil {
+            displayValue = result!
+        }
+        calculationSequenceDisplay.text = description +  (isPending ? " …" : " =")
     }
     
     var displayValue: Double {
@@ -78,12 +89,7 @@ class ViewController: UIViewController {
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
-        
-        let (result, isPending, description) = brain.evaluate(using: variableValues)
-        if result != nil {
-            displayValue = result!
-        }
-        calculationSequenceDisplay.text = description +  (isPending ? " …" : " =")
+        updateValueAndCalculationSequenceDisplays()
     }
     
     @IBAction func setVariable(_ sender: UIButton) {

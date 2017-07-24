@@ -80,6 +80,13 @@ struct CalculatorBrain {
         }
     }
     
+    /// Remove an entry from the entries operands and operations
+    mutating func undo() {
+        if !entries.isEmpty {
+            entries.removeLast()
+        }
+    }
+    
     /// Evalulate the entries of operations and operands in the calculator brain
     func evaluate(using variables: Dictionary<String,Double>? = nil) -> (result: Double?, isPending: Bool, description: String) {
         var accumulator: (value: Double, representation: String)?
